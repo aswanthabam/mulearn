@@ -12,6 +12,9 @@ import { BiSupport } from "react-icons/bi";
 import { PowerfulButton } from "@/MuLearnComponents/MuButtons/MuButton";
 import { getDWMSDetails } from "../../services/newOnboardingApis";
 import toast from "react-hot-toast";
+import { CredentialResponse, GoogleLogin } from "@react-oauth/google";
+import { privateGateway, publicGateway } from "@/MuLearnServices/apiGateways";
+import { onboardingRoutes } from "@/MuLearnServices/urls";
 
 const scheme = z.object({
     email: z
@@ -61,12 +64,49 @@ export default function AccountCreationComponent({
     const [isVisible, setVisible] = useState(false);
     const [isTncChecked, setTncChecked] = useState(false);
 
+    const onGoogleLoginSuccess = (response: CredentialResponse) => {
+        const idToken = response.credential;
+        publicGateway
+            .post("/api/v1/auth/signin-with-google/", { idToken })
+            .then(res => {
+                if (res.status !== 200) {
+                    toast.error("Google login failed");
+                    return;
+                }
+                const tokens = res.data.response;
+                localStorage.setItem("accessToken", tokens.accessToken);
+                localStorage.setItem("refreshToken", tokens.refreshToken);
+                toast.success("Google login successful");
+                onContinue({
+                    is_provider_auth: true,
+                    user: {
+                        full_name: "",
+                        email: "",
+                        password: ""
+                    },
+                    interests: {
+                        choosen_interests: [],
+                        choosen_endgoals: [],
+                        other_interests: [],
+                        other_endgoals: []
+                    }
+                });
+            })
+            .catch(err => {
+                toast.error("Google login failed");
+            });
+    };
+
+    const onGoogleLoginError = () => {
+        toast.error("Google login failed");
+    };
     const onSubmit = (values: any) => {
         if (!isTncChecked) {
             toast.error("Please accept the terms and conditions");
             return;
         }
         const userData: RegisterRequestDataType = {
+            is_provider_auth: false,
             user: {
                 full_name: values.full_name,
                 email: values.email,
@@ -131,6 +171,15 @@ export default function AccountCreationComponent({
                         <div className={styles.accountCreationContainer}>
                             <div className={styles.accountCreationInputs}>
                                 <div className={styles.inputBox}>
+                                    <GoogleLogin
+                                        onSuccess={onGoogleLoginSuccess}
+                                        onError={onGoogleLoginError}
+                                    />
+                                    <h1 className={styles.orSeperator}>
+                                        <span></span>
+                                        <p>OR</p>
+                                        <span></span>
+                                    </h1>
                                     <SimpleInput
                                         name={"email"}
                                         type="email"
@@ -226,6 +275,7 @@ export default function AccountCreationComponent({
                                         checked={isTncChecked}
                                         onChange={() => setTncChecked(e => !e)}
                                     />
+
                                     <p>
                                         I agree to the{" "}
                                         <a

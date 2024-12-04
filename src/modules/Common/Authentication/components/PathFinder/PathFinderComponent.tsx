@@ -6,7 +6,12 @@ import { Button, Checkbox, Progress } from "@chakra-ui/react";
 import toast from "react-hot-toast";
 import { BiChevronRight, BiRightArrow, BiRocket } from "react-icons/bi";
 import { originalQuestions } from "./questions";
-import { useLocation, useNavigate, useSearchParams } from "react-router-dom";
+import {
+    Link,
+    useLocation,
+    useNavigate,
+    useSearchParams
+} from "react-router-dom";
 import quizImg from "../../assets/quiz.png";
 import exploreImg from "../../assets/explore.png";
 
@@ -24,7 +29,7 @@ export default function PathFinderComponent({
 }: {
     onContinue: (interests: string[]) => void;
 }) {
-    const [currentQuestionIndex, setCurrentQuestionIndex] = useState(-1);
+    const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
     const [scores, setScores] = useState<Record<"A" | "B" | "C" | "D", number>>(
         {
             A: 0,
@@ -96,7 +101,7 @@ export default function PathFinderComponent({
     return (
         <OnboardingTemplate>
             <div className={styles.pathFinderContainer}>
-                {currentQuestionIndex < 0 ? (
+                {/* {currentQuestionIndex < 0 ? (
                     <div className={styles.initialBoxes}>
                         <div
                             className={`${styles.initialBox}`}
@@ -137,111 +142,120 @@ export default function PathFinderComponent({
                             </PowerfulButton>
                         </div>
                     </div>
-                ) : (
-                    <div className={styles.questionBox}>
-                        {questions[currentQuestionIndex] && (
-                            <>
-                                <span className={styles.status}>
-                                    Question {currentQuestionIndex + 1} of{" "}
-                                    {questions.length}
-                                </span>
-                                <Progress
-                                    value={
-                                        ((currentQuestionIndex + 1) /
-                                            questions.length) *
-                                        100
-                                    }
-                                    colorScheme="blue"
-                                    rounded={10}
-                                    size="sm"
-                                    className={styles.progress}
-                                />
-                                <h4 className={styles.question}>
-                                    {questions[currentQuestionIndex].question}
-                                </h4>
-                                <table className={styles.optionsTable}>
-                                    <tbody>
-                                        {questions[
-                                            currentQuestionIndex
-                                        ].options.map((option, index) => (
-                                            <tr
-                                                key={index}
-                                                className={
-                                                    styles.option +
-                                                    " " +
-                                                    (selectedOptions[
-                                                        currentQuestionIndex
-                                                    ]?.includes(option.category)
-                                                        ? styles.selected
-                                                        : "")
-                                                }
-                                                onClick={() =>
-                                                    handleOptionChange(
-                                                        option.category
-                                                    )
-                                                }
-                                            >
-                                                <td>
-                                                    <Checkbox
-                                                        className={
-                                                            styles.checkbox
-                                                        }
-                                                        value={option.category}
-                                                        isChecked={
-                                                            selectedOptions[
-                                                                currentQuestionIndex
-                                                            ]?.includes(
-                                                                option.category
-                                                            ) || false
-                                                        }
-                                                        onChange={() =>
-                                                            handleOptionChange(
-                                                                option.category
-                                                            )
-                                                        }
-                                                    />
-                                                    {option.text}
-                                                </td>
-                                            </tr>
-                                        ))}
-                                    </tbody>
-                                </table>
+                ) : ( */}
+                <div className={styles.questionBox}>
+                    {questions[currentQuestionIndex] && (
+                        <>
+                            <span className={styles.status}>
+                                Question {currentQuestionIndex + 1} of{" "}
+                                {questions.length}
+                            </span>
+                            <Progress
+                                value={
+                                    ((currentQuestionIndex + 1) /
+                                        questions.length) *
+                                    100
+                                }
+                                colorScheme="blue"
+                                rounded={10}
+                                size="sm"
+                                className={styles.progress}
+                            />
+                            <h4 className={styles.question}>
+                                {questions[currentQuestionIndex].question}
+                            </h4>
+                            <table className={styles.optionsTable}>
+                                <tbody>
+                                    {questions[
+                                        currentQuestionIndex
+                                    ].options.map((option, index) => (
+                                        <tr
+                                            key={index}
+                                            className={
+                                                styles.option +
+                                                " " +
+                                                (selectedOptions[
+                                                    currentQuestionIndex
+                                                ]?.includes(option.category)
+                                                    ? styles.selected
+                                                    : "")
+                                            }
+                                            onClick={() =>
+                                                handleOptionChange(
+                                                    option.category
+                                                )
+                                            }
+                                        >
+                                            <td>
+                                                <Checkbox
+                                                    className={styles.checkbox}
+                                                    value={option.category}
+                                                    isChecked={
+                                                        selectedOptions[
+                                                            currentQuestionIndex
+                                                        ]?.includes(
+                                                            option.category
+                                                        ) || false
+                                                    }
+                                                    onChange={() =>
+                                                        handleOptionChange(
+                                                            option.category
+                                                        )
+                                                    }
+                                                />
+                                                {option.text}
+                                            </td>
+                                        </tr>
+                                    ))}
+                                </tbody>
+                            </table>
 
-                                <div className={styles.actionButtons}>
-                                    {/* <PowerfulButton
-                                    onClick={handlePrevQuestion}
-                                    variant="outline"
+                            <div className={styles.actionButtons}>
+                                <PowerfulButton
+                                    style={{
+                                        gap: 10,
+                                        width: "fit-content"
+                                    }}
+                                    onClick={handleNextQuestion}
                                 >
-                                    Skip
-                                </PowerfulButton> */}
-                                    <PowerfulButton
+                                    {!selectedOptions[currentQuestionIndex] ||
+                                    selectedOptions[currentQuestionIndex]
+                                        .length === 0
+                                        ? "Skip to next question"
+                                        : currentQuestionIndex + 1 <
+                                          questions.length
+                                        ? "Continue"
+                                        : "Find your interest"}{" "}
+                                    {currentQuestionIndex + 1 <
+                                    questions.length ? (
+                                        <BiChevronRight size={25} />
+                                    ) : (
+                                        <BiRocket size={20} />
+                                    )}
+                                </PowerfulButton>
+                                <Link
+                                    to={
+                                        ruri
+                                            ? "/register/interests?ruri=" + ruri
+                                            : "/register/interests"
+                                    }
+                                    className={styles.skiptointerests}
+                                >
+                                    Know what your interest is?{" "}
+                                    <span
                                         style={{
-                                            gap: 10
+                                            fontSize: "inherit",
+                                            color: "blueviolet"
                                         }}
-                                        onClick={handleNextQuestion}
                                     >
-                                        {!selectedOptions[
-                                            currentQuestionIndex
-                                        ] ||
-                                        selectedOptions[currentQuestionIndex]
-                                            .length === 0
-                                            ? "Skip"
-                                            : currentQuestionIndex + 1 <
-                                              questions.length
-                                            ? "Continue"
-                                            : "Find your interest"}{" "}
-                                        {currentQuestionIndex + 1 <
-                                        questions.length ? (
-                                            <BiChevronRight size={25} />
-                                        ) : (
-                                            <BiRocket size={20} />
-                                        )}
-                                    </PowerfulButton>
-                                </div>
-                            </>
-                        )}
-                    </div>
-                )}
+                                        Skip and select your interests
+                                    </span>
+                                </Link>
+                            </div>
+                        </>
+                    )}
+                </div>
+                {/* )} */}
             </div>
         </OnboardingTemplate>
     );

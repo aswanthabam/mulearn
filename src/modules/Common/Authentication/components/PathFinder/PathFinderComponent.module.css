@@ -130,10 +130,24 @@
     }
 
     .actionButtons {
+        width: 100%;
         display: flex;
         justify-content: space-between;
-        justify-content: end;
+        flex-direction: column;
+        align-items: center;
+        gap: 15px;
+        /* justify-content: end; */
         margin-top: 20px;
+
+        .skiptointerests {
+            opacity: 0.8;
+            cursor: pointer;
+            &:hover {
+                opacity: 0.9;
+                text-decoration: underline;
+                text-decoration-color: #999;
+            }
+        }
     }
 }
 
@@ -260,5 +274,11 @@
     .initialBox:hover {
         transform: none; /* Disable hover transform for better usability on touch screens */
         box-shadow: 0 3px 10px rgba(0, 0, 0, 0.1); /* Simplify shadow on hover */
+    }
+
+    .pathFinderContainer {
+        .questionBox {
+            width: 90%;
+        }
     }
 }

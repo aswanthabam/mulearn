@@ -15,6 +15,9 @@ import {
 } from "../../../services/apis";
 
 import { useNavigate } from "react-router-dom";
+import { CredentialResponse, GoogleLogin } from "@react-oauth/google";
+import toast from "react-hot-toast";
+import { publicGateway } from "@/MuLearnServices/apiGateways";
 
 const inputObject = {
     emailOrMuId: "Email or MuId",
@@ -70,6 +73,30 @@ export default function SignIn() {
                 ruri
             );
         }
+    };
+
+    const onGoogleLoginSuccess = (response: CredentialResponse) => {
+        const idToken = response.credential;
+        publicGateway
+            .post("/api/v1/auth/signin-with-google/", { idToken })
+            .then(res => {
+                if (res.status !== 200) {
+                    toast.error("Google login failed");
+                    return;
+                }
+                const tokens = res.data.response;
+                localStorage.setItem("accessToken", tokens.accessToken);
+                localStorage.setItem("refreshToken", tokens.refreshToken);
+                toast.success("Google login successful");
+                navigate(ruri ? `/${ruri}` : "/dashboard");
+            })
+            .catch(err => {
+                toast.error("Google login failed");
+            });
+    };
+
+    const onGoogleLoginError = () => {
+        toast.error("Google login failed");
     };
 
     return (
@@ -150,6 +177,19 @@ export default function SignIn() {
                                             : "Sign in"}
                                     </PowerfulButton>
                                 </div>
+                                <h1
+                                    style={{
+                                        textAlign: "center",
+                                        margin: 10,
+                                        fontWeight: 600
+                                    }}
+                                >
+                                    OR
+                                </h1>
+                                <GoogleLogin
+                                    onSuccess={onGoogleLoginSuccess}
+                                    onError={onGoogleLoginError}
+                                />
                                 <div className={styles.noAccount}>
                                     <a
                                         href={

@@ -20,6 +20,7 @@ interface RegisterInterestData {
 }
 
 type RegisterRequestDataType = {
+    is_provider_auth: boolean;
     user: RegisterUserData;
     interests: InterestData;
     referral?: { muid: string };

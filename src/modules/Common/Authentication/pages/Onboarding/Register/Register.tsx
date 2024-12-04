@@ -7,6 +7,8 @@ import PathFinderComponent from "../../../components/PathFinder/PathFinderCompon
 import AccountCreationComponent from "../../../components/AccountCreation/AccountCreationComponent";
 import OnboardingTemplate from "../../../components/OnboardingTeamplate/OnboardingTemplate";
 import { INITIAL_ENDGOALS, INITIAL_INTERESTS } from "../constants";
+import { privateGateway } from "@/MuLearnServices/apiGateways";
+import { onboardingRoutes } from "@/MuLearnServices/urls";
 
 export default function RegisterPage() {
     const navigate = useNavigate();
@@ -71,6 +73,38 @@ export default function RegisterPage() {
         if (!userInterest) {
             toast.error("Please select your interests and endgoals");
             navigate("/register/interests");
+            return;
+        }
+        console.log("userData", userData);
+        if (userData.is_provider_auth) {
+            privateGateway
+                .post(onboardingRoutes.interests, userInterest)
+                .then(res => {
+                    if (res.status === 200) {
+                        navigate(
+                            ruri
+                                ? ruri == "noredirect"
+                                    ? "/dashboard/profile"
+                                    : `/register/organization/?ruri=${ruri}`
+                                : "/register/organization"
+                        );
+                    } else {
+                        toast.error(res.data?.message.general[0]);
+                    }
+                })
+                .catch(err => {
+                    navigate(
+                        ruri
+                            ? ruri == "noredirect"
+                                ? "/dashboard/profile"
+                                : `/register/organization/?ruri=${ruri}`
+                            : "/register/organization"
+                    );
+                    toast.error(
+                        err.response?.data.message.general[0] ||
+                            "Unexpected Error occurred"
+                    );
+                });
             return;
         }
         userData.interests = userInterest;
